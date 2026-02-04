@@ -5,11 +5,17 @@
 // #include "driver/rtc_io.h"
 
 // Sleep Parameters
-#define SLEEP_TIME 0 * 1000000  // Sleep time in microseconds
+// #define SLEEP_ENABLE
+#define SLEEP_TIME 3 * 1000000  // Sleep time in microseconds
 #define RTC_ARRAY_SIZE 3
 
+// Temperature Pins
+#define TEMP_ENABLE
+#define TMEMP_PIN_POS 32
+#define TMEMP_PIN_NEG 33
+
 // put function declarations here:
-# if SLEEP_TIME > 0
+# ifdef SLEEP_ENABLE
 RTC_DATA_ATTR byte bootCount = 0;
 # endif
 
@@ -18,7 +24,18 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Hello, World!");
 
-# if SLEEP_TIME > 0
+# ifdef TEMP_ENABLE
+  // Read temperature sensor values
+  const int tempPos = analogRead(TMEMP_PIN_POS);
+  const int tempNeg = analogRead(TMEMP_PIN_NEG);
+  const int tempDiff = tempPos - tempNeg;
+
+  Serial.printf("Temperature Sensor Readings: Positive: %d\n", tempPos);
+  Serial.printf("Temperature Sensor Readings: Negative: %d\n", tempNeg);
+  Serial.printf("Calculated Sensor Readings: %d\n", tempDiff);
+# endif
+
+# ifdef SLEEP_ENABLE
   // Test RTC memory
   Serial.printf("Boot count: %d\n", bootCount);
   
@@ -33,4 +50,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+# ifdef TEMP_ENABLE
+  // Read temperature sensor values
+  const int tempPos = analogRead(TMEMP_PIN_POS);
+  const int tempNeg = analogRead(TMEMP_PIN_NEG);
+  const int tempDiff = tempPos - tempNeg;
+
+  Serial.printf("Temperature Readings: Positive: %d, Negative: %d, Calculated: %d\n", tempPos, tempNeg, tempDiff);
+# endif
 }
