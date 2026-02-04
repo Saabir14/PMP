@@ -20,13 +20,13 @@ void setup() {
   Serial.printf("Boot count: %d\n", bootCount);
   
   // Got to sleep
-  # if SLEEP_TIME > 0
+# if SLEEP_TIME > 0
   Serial.printf("Entering deep sleep for %d seconds...\n\n", (int)(SLEEP_TIME / 1e6));
   esp_sleep_enable_timer_wakeup(SLEEP_TIME);
   Serial.flush();
   bootCount++;
   esp_deep_sleep_start();
-  # endif
+# endif
 }
 
 void loop() {
