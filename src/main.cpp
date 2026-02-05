@@ -105,7 +105,7 @@ int standard_deviation(const int *arr, const int size) { return sqrt(variance(ar
 int filter(int *arr, const int size, function<bool(int)> func)
 {
   int filtered_size = size;
-  for (int i = 0; i < filtered_size; i++)
+  for (int i = 0; i < filtered_size;)
   {
     if (!func(arr[i]))
     {
@@ -114,8 +114,8 @@ int filter(int *arr, const int size, function<bool(int)> func)
       arr[i] = arr[filtered_size - 1];
       arr[filtered_size - 1] = temp;
       filtered_size--;
-      i--; // Check the new element at this index
     }
+    else i++; // Element is valid, move to the next one
   }
   return filtered_size;
 }
