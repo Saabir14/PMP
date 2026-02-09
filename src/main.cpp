@@ -50,13 +50,13 @@ void setup()
   // d < 2 * sqrt(v)
   // d^2 < 4 * v
   const int sizePos = filter(tempReadingsPos, size, [vPos, mPos](int x)
-                { x -= mPos; return x * x < 4 * vPos; });
+                             { x -= mPos; return x * x < 4 * vPos; });
 
   const int vNeg = variance(tempReadingsNeg, TEMP_SAMPLES);
   const int mNeg = mean(tempReadingsNeg, TEMP_SAMPLES);
   const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
-                { x -= mNeg; return x * x < 4 * vNeg; });
-  
+                             { x -= mNeg; return x * x < 4 * vNeg; });
+
   const int tempDiff = mean(tempReadingsPos, sizePos) - mean(tempReadingsNeg, sizeNeg);
 
   Serial.printf("Calculated Sensor Readings: %d\n", tempDiff);
@@ -115,7 +115,9 @@ int filter(int *arr, const int size, function<bool(int)> func)
   int filtered_size = size;
   for (int i = 0; i < filtered_size;)
   {
-    if (!func(arr[i]))
+    if (func(arr[i]))
+      i++; // Element is valid, move to the next one
+    else
     {
       // Move this element to the end of the array and decrease the size of the filtered array
       int temp = arr[i];
@@ -123,8 +125,6 @@ int filter(int *arr, const int size, function<bool(int)> func)
       arr[filtered_size - 1] = temp;
       filtered_size--;
     }
-    else
-      i++; // Element is valid, move to the next one
   }
   return filtered_size;
 }
