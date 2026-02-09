@@ -57,8 +57,8 @@ void setup()
   const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
                 { x -= mNeg; return x * x < 4 * vNeg; });
   
-  const int tempDiff = mPos - mNeg;
-  
+  const int tempDiff = mean(tempReadingsPos, sizePos) - mean(tempReadingsNeg, sizeNeg);
+
   Serial.printf("Calculated Sensor Readings: %d\n", tempDiff);
 #endif
 
