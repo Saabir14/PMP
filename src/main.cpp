@@ -49,7 +49,8 @@ void setup()
   // Filter out readings that are more than 2 standard deviations away from the mean
   // d < 2 * sqrt(v)
   // d^2 < 4 * v
-  size = filter(tempReadingsPos, size, [v, m](int x) { const int d = abs(x - m); return d * d < 4 * v; });
+  size = filter(tempReadingsPos, size, [v, m](int x)
+                { x -= m; return x * x < 4 * v; });
 
   const int tempPos = mean(tempReadingsPos, size);
   const int tempNeg = mean(tempReadingsNeg, size);
@@ -104,6 +105,8 @@ int variance(const int *arr, const int size)
   return m_sqr - m * m;
 }
 
+// Standard deviation is the square root of the variance
+// Use Variance instead of Standard Deviation for filtering to avoid the cost of computing the square root
 int standard_deviation(const int *arr, const int size) { return sqrt(variance(arr, size)); }
 
 int filter(int *arr, const int size, function<bool(int)> func)
@@ -119,7 +122,8 @@ int filter(int *arr, const int size, function<bool(int)> func)
       arr[filtered_size - 1] = temp;
       filtered_size--;
     }
-    else i++; // Element is valid, move to the next one
+    else
+      i++; // Element is valid, move to the next one
   }
   return filtered_size;
 }
