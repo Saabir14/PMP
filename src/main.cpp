@@ -44,20 +44,25 @@ void setup()
     tempReadingsNeg[i] = analogRead(TMEMP_PIN_NEG);
   }
 
-  const int v = variance(tempReadingsPos, TEMP_SAMPLES);
-  const int m = mean(tempReadingsPos, TEMP_SAMPLES);
+  const int vPos = variance(tempReadingsPos, TEMP_SAMPLES);
+  const int mPos = mean(tempReadingsPos, TEMP_SAMPLES);
   // Filter out readings that are more than 2 standard deviations away from the mean
   // d < 2 * sqrt(v)
   // d^2 < 4 * v
-  size = filter(tempReadingsPos, size, [v, m](int x)
-                { x -= m; return x * x < 4 * v; });
+  const int sizePos = filter(tempReadingsPos, size, [vPos, mPos](int x)
+                { x -= mPos; return x * x < 4 * vPos; });
 
-  const int tempPos = mean(tempReadingsPos, size);
-  const int tempNeg = mean(tempReadingsNeg, size);
-  const int tempDiff = tempPos - tempNeg;
+  const int vNeg = variance(tempReadingsNeg, TEMP_SAMPLES);
+  const int mNeg = mean(tempReadingsNeg, TEMP_SAMPLES);
+  const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
+                { x -= mNeg; return x * x < 4 * vNeg; });
 
-  Serial.printf("Temperature Sensor Readings: Positive: %d\n", tempPos);
-  Serial.printf("Temperature Sensor Readings: Negative: %d\n", tempNeg);
+  const int mPos = mean(tempReadingsPos, sizePos);
+  const int mNeg = mean(tempReadingsNeg, sizeNeg);
+  const int tempDiff = mPos - mNeg;
+
+  Serial.printf("Temperature Sensor Readings: Positive: %d\n", mPos);
+  Serial.printf("Temperature Sensor Readings: Negative: %d\n", mNeg);
   Serial.printf("Calculated Sensor Readings: %d\n", tempDiff);
 #endif
 
