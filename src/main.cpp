@@ -56,9 +56,7 @@ void setup()
   const int mNeg = mean(tempReadingsNeg, TEMP_SAMPLES);
   const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
                 { x -= mNeg; return x * x < 4 * vNeg; });
-
-  const int mPos = mean(tempReadingsPos, sizePos);
-  const int mNeg = mean(tempReadingsNeg, sizeNeg);
+  
   const int tempDiff = mPos - mNeg;
 
   Serial.printf("Temperature Sensor Readings: Positive: %d\n", mPos);
