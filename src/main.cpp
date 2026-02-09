@@ -44,8 +44,12 @@ void setup()
     tempReadingsNeg[i] = analogRead(TMEMP_PIN_NEG);
   }
 
-  const int var = variance(tempReadingsPos, TEMP_SAMPLES);
-  size = filter(tempReadingsPos, size, [var](int x) { return x * x < var * 2; });
+  const int v = variance(tempReadingsPos, TEMP_SAMPLES);
+  const int m = mean(tempReadingsPos, TEMP_SAMPLES);
+  // Filter out readings that are more than 2 standard deviations away from the mean
+  // d < 2 * sqrt(v)
+  // d^2 < 4 * v
+  size = filter(tempReadingsPos, size, [v, m](int x) { const int d = abs(x - m); return d * d < 4 * v; });
 
   const int tempPos = mean(tempReadingsPos, size);
   const int tempNeg = mean(tempReadingsNeg, size);
