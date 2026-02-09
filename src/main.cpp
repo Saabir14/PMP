@@ -58,9 +58,7 @@ void setup()
                 { x -= mNeg; return x * x < 4 * vNeg; });
   
   const int tempDiff = mPos - mNeg;
-
-  Serial.printf("Temperature Sensor Readings: Positive: %d\n", mPos);
-  Serial.printf("Temperature Sensor Readings: Negative: %d\n", mNeg);
+  
   Serial.printf("Calculated Sensor Readings: %d\n", tempDiff);
 #endif
 
