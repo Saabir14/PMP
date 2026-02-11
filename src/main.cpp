@@ -89,35 +89,35 @@ void setup()
 #endif
   }
 
-  void loop() {return;}  // Not needed but Arduino requires definition of loop() when using Arduino.h
+void loop() {return;}  // Not needed but Arduino requires definition of loop() when using Arduino.h
 
-  int mean(const int *arr, const int size)
-  {
-    int sum = 0;
-    for (int i = 0; i < size; i++)
-      sum += arr[i];
-    return sum / size;
-  }
+int mean(const int *arr, const int size)
+{
+  int sum = 0;
+  for (int i = 0; i < size; i++)
+    sum += arr[i];
+  return sum / size;
+}
 
-  int variance(const int *arr, const int size)
-  {
-    // Mean of the squares minus the square of the mean
-    int arr_sqr[size];
-    memcpy(arr_sqr, arr, size * sizeof(int));
-    for (int i = 0; i < size; i++)
-      arr_sqr[i] *= arr_sqr[i];
+int variance(const int *arr, const int size)
+{
+  // Mean of the squares minus the square of the mean
+  int arr_sqr[size];
+  memcpy(arr_sqr, arr, size * sizeof(int));
+  for (int i = 0; i < size; i++)
+    arr_sqr[i] *= arr_sqr[i];
 
-    const int m_sqr = mean(arr_sqr, size);
+  const int m_sqr = mean(arr_sqr, size);
 
-    const int m = mean(arr, size);
-    return m_sqr - m * m;
-  }
+  const int m = mean(arr, size);
+  return m_sqr - m * m;
+}
 
-  // Standard deviation is the square root of the variance
-  // Use Variance instead of Standard Deviation for filtering to avoid the cost of computing the square root
-  int standard_deviation(const int *arr, const int size) { return sqrt(variance(arr, size)); }
+// Standard deviation is the square root of the variance
+// Use Variance instead of Standard Deviation for filtering to avoid the cost of computing the square root
+int standard_deviation(const int *arr, const int size) { return sqrt(variance(arr, size)); }
 
-  int filter(int *arr, const int size, function<bool(int)> func)
+int filter(int *arr, const int size, function<bool(int)> func)
   {
     int filtered_size = size;
     for (int i = 0; i < filtered_size;)
