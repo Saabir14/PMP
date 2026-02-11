@@ -77,16 +77,14 @@ void setup()
   Serial.flush();
   bootCount++;
   esp_deep_sleep_start();
-#else
-  delay(LOOP_DELAY);
 #endif
 }
 
 void loop()
 {
-  #ifndef SLEEP_ENABLE
+  // Called only when sleep is not enabled, otherwise the device will be in deep sleep and loop will never be called
+  delay(LOOP_DELAY);
   void setup();
-  #endif
 }
 
 int mean(const int *arr, const int size)
