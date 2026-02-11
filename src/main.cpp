@@ -38,58 +38,56 @@ void setup()
   Serial.begin(9600);
   Serial.println("Hello, World!");
 
-#ifndef SLEEP_ENABLE
-  // Repeat the loop indefinitely if sleep is not enabled
-  while (true)
-  {
-#endif
-
 #ifdef TEMP_ENABLE
-    // Read temperature sensor values
-    int size = TEMP_SAMPLES;
-    int tempReadingsPos[TEMP_SAMPLES], tempReadingsNeg[TEMP_SAMPLES];
-    for (int i = 0; i < TEMP_SAMPLES; i++)
-    {
-      tempReadingsPos[i] = analogRead(TMEMP_PIN_POS);
-      tempReadingsNeg[i] = analogRead(TMEMP_PIN_NEG);
-    }
+  // Read temperature sensor values
+  int size = TEMP_SAMPLES;
+  int tempReadingsPos[TEMP_SAMPLES], tempReadingsNeg[TEMP_SAMPLES];
+  for (int i = 0; i < TEMP_SAMPLES; i++)
+  {
+    tempReadingsPos[i] = analogRead(TMEMP_PIN_POS);
+    tempReadingsNeg[i] = analogRead(TMEMP_PIN_NEG);
+  }
 
-    // Filter out readings that are more than 1 standard deviations away from the mean
-    // d < sqrt(v)
-    // d^2 < v
-    const int vPos = variance(tempReadingsPos, TEMP_SAMPLES);
-    const int mPos = mean(tempReadingsPos, TEMP_SAMPLES);
-    const int sizePos = filter(tempReadingsPos, size, [vPos, mPos](int x)
-                               { x -= mPos; return x * x < vPos; });
+  // Filter out readings that are more than 1 standard deviations away from the mean
+  // d < sqrt(v)
+  // d^2 < v
+  const int vPos = variance(tempReadingsPos, TEMP_SAMPLES);
+  const int mPos = mean(tempReadingsPos, TEMP_SAMPLES);
+  const int sizePos = filter(tempReadingsPos, size, [vPos, mPos](int x)
+                             { x -= mPos; return x * x < vPos; });
 
-    const int vNeg = variance(tempReadingsNeg, TEMP_SAMPLES);
-    const int mNeg = mean(tempReadingsNeg, TEMP_SAMPLES);
-    const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
-                               { x -= mNeg; return x * x < vNeg; });
+  const int vNeg = variance(tempReadingsNeg, TEMP_SAMPLES);
+  const int mNeg = mean(tempReadingsNeg, TEMP_SAMPLES);
+  const int sizeNeg = filter(tempReadingsNeg, size, [vNeg, mNeg](int x)
+                             { x -= mNeg; return x * x < vNeg; });
 
-    const int tempDiff = mean(tempReadingsPos, sizePos) - mean(tempReadingsNeg, sizeNeg);
+  const int tempDiff = mean(tempReadingsPos, sizePos) - mean(tempReadingsNeg, sizeNeg);
 
-    Serial.printf("Calculated Sensor Readings: %.2f\n", (float)tempDiff * VREF / ADC_RESOLUTION);
-    Serial.printf("size: %d, sizeNeg: %d, sizePos: %d\n", size, sizeNeg, sizePos);
+  Serial.printf("Calculated Sensor Readings: %.2f\n", (float)tempDiff * VREF / ADC_RESOLUTION);
+  Serial.printf("size: %d, sizeNeg: %d, sizePos: %d\n", size, sizeNeg, sizePos);
 #endif
 
 #ifdef SLEEP_ENABLE
-    // Test RTC memory
-    Serial.printf("Boot count: %d\n", bootCount);
+  // Test RTC memory
+  Serial.printf("Boot count: %d\n", bootCount);
 
-    // Got to sleep
-    Serial.printf("Entering deep sleep for %d seconds...\n\n", (int)(SLEEP_TIME / 1e6));
-    esp_sleep_enable_timer_wakeup(SLEEP_TIME);
-    Serial.flush();
-    bootCount++;
-    esp_deep_sleep_start();
+  // Got to sleep
+  Serial.printf("Entering deep sleep for %d seconds...\n\n", (int)(SLEEP_TIME / 1e6));
+  esp_sleep_enable_timer_wakeup(SLEEP_TIME);
+  Serial.flush();
+  bootCount++;
+  esp_deep_sleep_start();
 #else
-    delay(LOOP_DELAY);
-  }
+  delay(LOOP_DELAY);
 #endif
 }
 
-void loop() {return;}  // Not needed but Arduino requires definition of loop() when using Arduino.h
+void loop()
+{
+  #ifndef SLEEP_ENABLE
+  void setup();
+  #endif
+}
 
 int mean(const int *arr, const int size)
 {
@@ -118,20 +116,20 @@ int variance(const int *arr, const int size)
 int standard_deviation(const int *arr, const int size) { return sqrt(variance(arr, size)); }
 
 int filter(int *arr, const int size, function<bool(int)> func)
+{
+  int filtered_size = size;
+  for (int i = 0; i < filtered_size;)
   {
-    int filtered_size = size;
-    for (int i = 0; i < filtered_size;)
+    if (func(arr[i]))
+      i++; // Element is valid, move to the next one
+    else
     {
-      if (func(arr[i]))
-        i++; // Element is valid, move to the next one
-      else
-      {
-        // Move this element to the end of the array and decrease the size of the filtered array
-        int temp = arr[i];
-        arr[i] = arr[filtered_size - 1];
-        arr[filtered_size - 1] = temp;
-        filtered_size--;
-      }
+      // Move this element to the end of the array and decrease the size of the filtered array
+      int temp = arr[i];
+      arr[i] = arr[filtered_size - 1];
+      arr[filtered_size - 1] = temp;
+      filtered_size--;
     }
-    return filtered_size;
   }
+  return filtered_size;
+}
