@@ -85,9 +85,9 @@ void setup()
     esp_deep_sleep_start();
 #else
     delay(LOOP_DELAY);
-}
-#endif
   }
+#endif
+}
 
 void loop() {return;}  // Not needed but Arduino requires definition of loop() when using Arduino.h
 
